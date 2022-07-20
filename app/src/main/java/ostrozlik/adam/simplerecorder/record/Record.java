@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 
 public class Record {
 
@@ -64,5 +65,18 @@ public class Record {
 
     public long getSizeInBytes() {
         return sizeInBytes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Record record = (Record) o;
+        return sizeInBytes == record.sizeInBytes && Objects.equals(name, record.name) && Objects.equals(duration, record.duration) && Objects.equals(creationTime, record.creationTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, duration, creationTime, sizeInBytes);
     }
 }

@@ -5,7 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,7 +39,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
     private RecorderState recorderState;
     private RecordsManager recordsManager;
 
-    private ListView recordListView;
+    private ExpandableListView recordListView;
     private RecordListAdapter recordListAdapter;
 
     @Override
@@ -52,12 +52,14 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.recordListView = findViewById(R.id.recordsListView);
 
         this.recordsManager = RecordsManagerImpl.newInstance(getSaveDirectory());
-        this.recordListAdapter = new RecordListAdapter(recordsManager, getApplicationContext());
+        this.recordListAdapter = new RecordListAdapter(recordsManager, getApplicationContext(), this);
         this.recordListView.setAdapter(this.recordListAdapter);
 
         this.recordButton.setOnClickListener(new RecordButtonStateListener());
         this.stopButton.setOnClickListener(new StopButtonStateListener());
         this.recorderState = new RecorderStopState(this, null);
+
+        this.recordListView.setOnGroupExpandListener(new PreviousGroupCollapseListener(this.recordListView));
     }
 
     @Override

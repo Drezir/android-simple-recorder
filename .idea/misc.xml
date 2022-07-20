@@ -9,6 +9,7 @@
         <entry key="..\:/Users/adamo/AndroidStudioProjects/SimpleRecorder/app/src/main/res/layout/fragment_item_list.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/adamo/AndroidStudioProjects/SimpleRecorder/app/src/main/res/layout/fragment_record_item.xml" value="0.25" />
         <entry key="..\:/Users/adamo/AndroidStudioProjects/SimpleRecorder/app/src/main/res/layout/record_item.xml" value="0.22846781504986402" />
+        <entry key="..\:/Users/adamo/AndroidStudioProjects/SimpleRecorder/app/src/main/res/layout/record_item_detail.xml" value="0.176" />
       </map>
     </option>
   </component>
@@ -17,5 +18,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.1" />
+      </ProjectState>
+    </option>
   </component>
 </project>
