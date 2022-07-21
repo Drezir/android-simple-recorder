@@ -1,5 +1,7 @@
 package ostrozlik.adam.simplerecorder.storage;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -14,4 +16,6 @@ public interface RecordStorage {
     Record saveRecordedFile(FsRecord newRecord);
 
     boolean renameRecord(Record record, String text);
+
+    Uri resolveUriToPlayRecordFrom(Record record);
 }

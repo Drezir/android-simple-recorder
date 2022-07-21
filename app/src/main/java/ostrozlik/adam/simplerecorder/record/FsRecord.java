@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 
 import ostrozlik.adam.simplerecorder.record.constant.RecordExtension;
 
@@ -57,5 +58,19 @@ public class FsRecord extends AbstractRecord {
     private static Instant resolveCreationTime(Path filePath) throws IOException {
         BasicFileAttributes basicFileAttributes = Files.readAttributes(filePath, BasicFileAttributes.class);
         return basicFileAttributes.creationTime().toInstant();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        FsRecord fsRecord = (FsRecord) o;
+        return Objects.equals(filePath, fsRecord.filePath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), filePath);
     }
 }

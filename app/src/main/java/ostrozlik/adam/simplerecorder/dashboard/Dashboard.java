@@ -23,8 +23,8 @@ import java.nio.file.Path;
 import ostrozlik.adam.simplerecorder.R;
 import ostrozlik.adam.simplerecorder.record.FsRecord;
 import ostrozlik.adam.simplerecorder.record.RecordListAdapter;
-import ostrozlik.adam.simplerecorder.record.manager.RecordsManager;
-import ostrozlik.adam.simplerecorder.record.manager.RecordsManagerImpl;
+import ostrozlik.adam.simplerecorder.record.manager.RecordManager;
+import ostrozlik.adam.simplerecorder.record.manager.RecordManagerImpl;
 import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
 import ostrozlik.adam.simplerecorder.recorder.RecorderState;
 import ostrozlik.adam.simplerecorder.recorder.state.RecorderRecordingState;
@@ -37,7 +37,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
     private FloatingActionButton recordButton;
     private FloatingActionButton stopButton;
     private RecorderState recorderState;
-    private RecordsManager recordsManager;
+    private RecordManager recordManager;
 
     private ExpandableListView recordListView;
     private RecordListAdapter recordListAdapter;
@@ -51,15 +51,15 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.stopButton = findViewById(R.id.stopButton);
         this.recordListView = findViewById(R.id.recordsListView);
 
-        this.recordsManager = RecordsManagerImpl.newFsInstance(getSaveDirectory(), this);
-        this.recordListAdapter = new RecordListAdapter(recordsManager, this);
+        this.recordManager = RecordManagerImpl.newFsInstance(getSaveDirectory(), this);
+        this.recordListAdapter = new RecordListAdapter(recordManager, this);
         this.recordListView.setAdapter(this.recordListAdapter);
 
         this.recordButton.setOnClickListener(new RecordButtonStateListener());
         this.stopButton.setOnClickListener(new StopButtonStateListener());
         this.recorderState = new RecorderStopState(this, null);
 
-        this.recordListView.setOnGroupExpandListener(new PreviousGroupCollapseListener(this.recordListView));
+        this.recordListView.setOnGroupExpandListener(groupPosition -> new PreviousGroupCollapseListener(this.recordListView));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.stopButton.setVisibility(View.GONE);
         this.recordButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.mic_icon));
         try {
-            this.recordsManager.newRecordedFile(FsRecord.newFsInstance(outputFile));
+            this.recordManager.newRecordedFile(FsRecord.newFsInstance(outputFile));
         } catch (IOException e) {
             Log.e("record-read", "Error reading record", e);
         }

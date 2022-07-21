@@ -1,11 +1,13 @@
 package ostrozlik.adam.simplerecorder.record.manager;
 
+import android.net.Uri;
+
 import java.util.List;
 
 import ostrozlik.adam.simplerecorder.record.FsRecord;
 import ostrozlik.adam.simplerecorder.record.Record;
 
-public interface RecordsManager {
+public interface RecordManager {
     /**
      * Get unmodifiable list of records.
      *
@@ -43,5 +45,20 @@ public interface RecordsManager {
      * @param text  record name
      * @return true if renamed, false otherwise
      */
-    boolean renameRecord(int index, String text);
+    boolean renameRecord(Record index, String text);
+
+    /**
+     * Prepare record to play as local file.
+     *
+     * @param record record to play
+     * @return uri to initiate record data stream
+     */
+    Uri uriToPlay(Record record);
+
+    /**
+     * Delete record.
+     *
+     * @param record record to delete
+     */
+    void deleteRecord(Record record);
 }

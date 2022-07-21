@@ -1,6 +1,6 @@
 package ostrozlik.adam.simplerecorder.record.manager;
 
-import android.text.Editable;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
@@ -15,19 +15,19 @@ import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
 import ostrozlik.adam.simplerecorder.storage.FSRecordStorage;
 import ostrozlik.adam.simplerecorder.storage.RecordStorage;
 
-public class RecordsManagerImpl implements RecordsManager {
+public class RecordManagerImpl implements RecordManager {
 
     private final List<Record> records;
     private final RecordStorage recordStorage;
     private final RecorderMediator recorderMediator;
 
-    private RecordsManagerImpl(List<Record> records, RecordStorage recordStorage, RecorderMediator recorderMediator) {
+    private RecordManagerImpl(List<Record> records, RecordStorage recordStorage, RecorderMediator recorderMediator) {
         this.records = new ArrayList<>(records);
         this.recordStorage = recordStorage;
         this.recorderMediator = recorderMediator;
     }
 
-    public static RecordsManagerImpl newFsInstance(File recordsDir, RecorderMediator recorderMediator) {
+    public static RecordManagerImpl newFsInstance(File recordsDir, RecorderMediator recorderMediator) {
         List<Record> records = new ArrayList<>();
         RecordStorage recordStorage = new FSRecordStorage(recordsDir.toPath());
         try {
@@ -35,7 +35,7 @@ public class RecordsManagerImpl implements RecordsManager {
         } catch (IOException e) {
             Log.e("record-read", "Error walking files in directory " + recordsDir, e);
         }
-        return new RecordsManagerImpl(records, recordStorage, recorderMediator);
+        return new RecordManagerImpl(records, recordStorage, recorderMediator);
     }
 
     @Override
@@ -69,9 +69,8 @@ public class RecordsManagerImpl implements RecordsManager {
     }
 
     @Override
-    public boolean renameRecord(int index, String text) {
-        if (0 <= index && index < this.records.size() && !text.trim().isEmpty()) {
-            Record record = this.records.get(index);
+    public boolean renameRecord(Record record, String text) {
+        if (!text.trim().isEmpty()) {
             if (this.recordStorage.renameRecord(record, text)) {
                 record.rename(text);
                 this.recorderMediator.recordsChanged();
@@ -79,5 +78,18 @@ public class RecordsManagerImpl implements RecordsManager {
             }
         }
         return false;
+    }
+
+    @Override
+    public Uri uriToPlay(Record record) {
+        return this.recordStorage.resolveUriToPlayRecordFrom(record);
+    }
+
+    @Override
+    public void deleteRecord(Record record) {
+        if (this.recordStorage.removeRecord(record)) {
+            this.records.remove(record);
+            this.recorderMediator.recordsChanged();
+        }
     }
 }

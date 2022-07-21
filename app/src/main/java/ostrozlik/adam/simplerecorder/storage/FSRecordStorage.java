@@ -1,8 +1,9 @@
 package ostrozlik.adam.simplerecorder.storage;
 
+import android.media.FaceDetector;
+import android.net.Uri;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,6 +62,14 @@ public class FSRecordStorage implements RecordStorage {
             }
         }
         return false;
+    }
+
+    @Override
+    public Uri resolveUriToPlayRecordFrom(Record record) {
+        if (record instanceof FsRecord) {
+            return Uri.fromFile(((FsRecord) record).getFilePath().toFile());
+        }
+        throw new IllegalArgumentException("Record is not FsRecord");
     }
 
     private static boolean isFile(Path path) {

@@ -5,7 +5,6 @@ import static ostrozlik.adam.simplerecorder.SimpleRecorderUtils.formatDuration;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.text.format.Formatter;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,17 +18,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.IOException;
+
 import ostrozlik.adam.simplerecorder.R;
-import ostrozlik.adam.simplerecorder.record.manager.RecordsManager;
+import ostrozlik.adam.simplerecorder.record.manager.RecordManager;
+import ostrozlik.adam.simplerecorder.record.player.RecordPlayerManager;
 
 public class RecordListAdapter extends BaseExpandableListAdapter {
 
-    private final RecordsManager recordsManager;
+    private final RecordManager recordManager;
     private final Context context;
+    private final RecordPlayerManager recordPlayerManager;
 
-    public RecordListAdapter(RecordsManager recordsManager, Context context) {
-        this.recordsManager = recordsManager;
+    public RecordListAdapter(RecordManager recordManager, Context context) {
+        this.recordManager = recordManager;
         this.context = context;
+        this.recordPlayerManager = new RecordPlayerManager(context);
     }
 
     private void pouplateFields(RecordViewHolder recordViewHolder, Record record) {
@@ -73,8 +77,15 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
+    public void onGroupCollapsed(int groupPosition) {
+        super.onGroupCollapsed(groupPosition);
+        Record record = recordManager.recordAtPosition(groupPosition);
+        this.recordPlayerManager.releaseIfPlaying(recordManager.uriToPlay(record));
+    }
+
+    @Override
     public int getGroupCount() {
-        return this.recordsManager.getRecords().size();
+        return this.recordManager.getRecords().size();
     }
 
     @Override
@@ -84,22 +95,22 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
-        return this.recordsManager.recordAtPosition(groupPosition);
+        return this.recordManager.recordAtPosition(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return this.recordsManager.recordAtPosition(groupPosition);
+        return this.recordManager.recordAtPosition(groupPosition);
     }
 
     @Override
     public long getGroupId(int groupPosition) {
-        return this.recordsManager.recordAtPosition(groupPosition).hashCode();
+        return this.recordManager.recordAtPosition(groupPosition).hashCode();
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return this.recordsManager.recordAtPosition(groupPosition).hashCode();
+        return this.recordManager.recordAtPosition(groupPosition).hashCode();
     }
 
     @Override
@@ -110,7 +121,7 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View view = resolveRecordView(convertView, parent);
-        pouplateFields((RecordViewHolder) view.getTag(), recordsManager.recordAtPosition(groupPosition));
+        pouplateFields((RecordViewHolder) view.getTag(), recordManager.recordAtPosition(groupPosition));
         return view;
     }
 
@@ -125,21 +136,44 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
     }
 
     private void createRecordDetailBehaviour(RecordDetailViewHolder recordDetailViewHolder, int index) {
-        recordDetailViewHolder.deleteButton.setOnClickListener(v -> new AlertDialog.Builder(this.context)
-                .setMessage("Are you sure?")
-                .setPositiveButton("Yes", (dialog, which) -> recordsManager.deleteAtPosition(index))
-                .setNegativeButton("No", (dialog, which) -> Log.i("record-delete", "Record not deleted"))
-                .show());
-        recordDetailViewHolder.renameButton.setOnClickListener(v -> {
+        final Record record = recordManager.recordAtPosition(index);
+        prepareDeleteButton(recordDetailViewHolder.deleteButton, record);
+        prepareRenameButton(recordDetailViewHolder.renameButton, record);
+        preparePlayButton(recordDetailViewHolder.playButton, recordDetailViewHolder.recordSeekBar, record);
+    }
+
+    private void preparePlayButton(ImageButton playButton, SeekBar seekBar, Record record) {
+        playButton.setOnClickListener(v -> {
+            try {
+                this.recordPlayerManager.playOrPause(recordManager.uriToPlay(record), record.getDuration(), seekBar);
+            } catch (IOException e) {
+                Log.e("record-play", "Error playing record", e);
+            }
+        });
+    }
+
+    private void prepareRenameButton(ImageButton renameButton, Record record) {
+        renameButton.setOnClickListener(v -> {
             EditText editText = new EditText(this.context);
-            editText.setText(recordsManager.recordAtPosition(index).getName());
+            editText.setText(record.getName());
             new AlertDialog.Builder(this.context)
                     .setTitle("Rename record")
                     .setView(editText)
-                    .setPositiveButton("Ok", (dialog, which) -> recordsManager.renameRecord(index, editText.getText().toString()))
+                    .setPositiveButton("Ok", (dialog, which) -> recordManager.renameRecord(record, editText.getText().toString()))
                     .setNegativeButton("Cancel", (dialog, which) -> Log.i("record-rename", "Record not renamed"))
                     .show();
         });
+    }
+
+    private void prepareDeleteButton(ImageButton deleteButton, Record record) {
+        deleteButton.setOnClickListener(v -> new AlertDialog.Builder(this.context)
+                .setMessage("Are you sure?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    this.recordPlayerManager.releaseIfPlaying(this.recordManager.uriToPlay(record));
+                    this.recordManager.deleteRecord(record);
+                })
+                .setNegativeButton("No", (dialog, which) -> Log.i("record-delete", "Record not deleted"))
+                .show());
     }
 
     @Override
@@ -153,6 +187,7 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
         private TextView recordDateText;
         private TextView recordSizeText;
     }
+
     private static class RecordDetailViewHolder {
         private SeekBar recordSeekBar;
         private ImageButton playButton;
