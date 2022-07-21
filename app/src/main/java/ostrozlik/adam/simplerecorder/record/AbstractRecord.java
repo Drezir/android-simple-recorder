@@ -1,44 +1,55 @@
 package ostrozlik.adam.simplerecorder.record;
 
-import android.media.MediaMetadataRetriever;
-
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
+import ostrozlik.adam.simplerecorder.record.constant.RecordExtension;
+
 public class AbstractRecord implements Record {
 
-    private final String name;
+    private String name;
     private final Duration duration;
     private final Instant creationTime;
     private final long sizeInBytes;
+    private final RecordExtension recordExtension;
 
-    protected AbstractRecord(String name, Duration duration, Instant creationTime, long sizeInBytes) {
+    protected AbstractRecord(String name, Duration duration, Instant creationTime, long sizeInBytes, RecordExtension recordExtension) {
         this.name = name;
         this.duration = duration;
         this.creationTime = creationTime;
         this.sizeInBytes = sizeInBytes;
+        this.recordExtension = recordExtension;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Duration getDuration() {
         return duration;
     }
 
+    @Override
     public Instant getCreationTime() {
         return creationTime;
     }
 
+    @Override
     public long getSizeInBytes() {
         return sizeInBytes;
+    }
+
+    @Override
+    public RecordExtension getRecordExtension() {
+        return recordExtension;
+    }
+
+    @Override
+    public void rename(String newName) {
+        this.name = newName;
     }
 
     @Override

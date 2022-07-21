@@ -1,5 +1,6 @@
 package ostrozlik.adam.simplerecorder.record.manager;
 
+import android.text.Editable;
 import android.util.Log;
 
 import java.io.File;
@@ -60,6 +61,19 @@ public class RecordsManagerImpl implements RecordsManager {
             Record record = this.records.get(index);
             if (this.recordStorage.removeRecord(record)) {
                 this.records.remove(index);
+                this.recorderMediator.recordsChanged();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean renameRecord(int index, String text) {
+        if (0 <= index && index < this.records.size() && !text.trim().isEmpty()) {
+            Record record = this.records.get(index);
+            if (this.recordStorage.renameRecord(record, text)) {
+                record.rename(text);
                 this.recorderMediator.recordsChanged();
                 return true;
             }

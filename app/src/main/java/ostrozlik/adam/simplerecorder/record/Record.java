@@ -3,6 +3,8 @@ package ostrozlik.adam.simplerecorder.record;
 import java.time.Duration;
 import java.time.Instant;
 
+import ostrozlik.adam.simplerecorder.record.constant.RecordExtension;
+
 public interface Record {
 
     String getName();
@@ -12,4 +14,8 @@ public interface Record {
     Instant getCreationTime();
 
     long getSizeInBytes();
+
+    RecordExtension getRecordExtension();
+
+    void rename(String newName);
 }

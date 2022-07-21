@@ -10,13 +10,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
 
+import ostrozlik.adam.simplerecorder.record.constant.RecordExtension;
+
 public class FsRecord extends AbstractRecord {
 
     private final Path filePath;
 
     public FsRecord(String name, Duration duration, Instant creationTime, long sizeInBytes, Path filePath) {
-        super(name, duration, creationTime, sizeInBytes);
+        super(name, duration, creationTime, sizeInBytes, resolveExtension(filePath));
         this.filePath = filePath;
+    }
+
+    private static RecordExtension resolveExtension(Path filePath) {
+        String filePathStr = filePath.toString();
+        String filePathExtension = filePathStr.substring(filePathStr.lastIndexOf(".") + 1);
+        return RecordExtension.resolveExtension(filePathExtension);
     }
 
     public Path getFilePath() {
@@ -25,8 +33,10 @@ public class FsRecord extends AbstractRecord {
 
     public static FsRecord newFsInstance(Path filePath) throws IOException {
         try (FileChannel fileChannel = FileChannel.open(filePath)) {
+            String fileName = filePath.getFileName().toString();
+            String nameWithoutExtension = fileName.substring(0, fileName.lastIndexOf("."));
             return new FsRecord(
-                    filePath.getFileName().toString(),
+                    nameWithoutExtension,
                     resolveDuration(filePath),
                     resolveCreationTime(filePath),
                     fileChannel.size(),

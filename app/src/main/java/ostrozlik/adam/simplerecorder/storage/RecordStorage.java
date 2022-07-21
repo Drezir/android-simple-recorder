@@ -12,4 +12,6 @@ public interface RecordStorage {
     boolean removeRecord(Record record);
 
     Record saveRecordedFile(FsRecord newRecord);
+
+    boolean renameRecord(Record record, String text);
 }

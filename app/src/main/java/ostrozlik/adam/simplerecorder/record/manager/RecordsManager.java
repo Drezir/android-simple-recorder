@@ -35,4 +35,13 @@ public interface RecordsManager {
      * @return
      */
     boolean deleteAtPosition(int index);
+
+    /**
+     * Rename record at position to given text. Blank text is considered invalid and method returns false.
+     *
+     * @param index record index
+     * @param text  record name
+     * @return true if renamed, false otherwise
+     */
+    boolean renameRecord(int index, String text);
 }

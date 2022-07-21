@@ -5,11 +5,13 @@ import static ostrozlik.adam.simplerecorder.SimpleRecorderUtils.formatDuration;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.text.format.Formatter;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -31,7 +33,7 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
     }
 
     private void pouplateFields(RecordViewHolder recordViewHolder, Record record) {
-        recordViewHolder.recordNameText.setText(record.getName());
+        recordViewHolder.recordNameText.setText(record.getName() + "." + record.getRecordExtension().getExtension());
         recordViewHolder.recordDurationText.setText(formatDuration(record.getDuration()));
         recordViewHolder.recordDateText.setText(record.getCreationTime().toString());
         recordViewHolder.recordSizeText.setText(Formatter.formatFileSize(context, record.getSizeInBytes()));
@@ -114,20 +116,28 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            View newRecordDetailView = createNewRecordDetailView(parent);
-            createRecordDetailBehaviour((RecordDetailViewHolder) newRecordDetailView.getTag(), groupPosition);
-            return newRecordDetailView;
+        View result = convertView;
+        if (result == null) {
+            result = createNewRecordDetailView(parent);
         }
-        return convertView;
+        createRecordDetailBehaviour((RecordDetailViewHolder) result.getTag(), groupPosition);
+        return result;
     }
 
     private void createRecordDetailBehaviour(RecordDetailViewHolder recordDetailViewHolder, int index) {
-        recordDetailViewHolder.deleteButton.setOnClickListener(v -> {
+        recordDetailViewHolder.deleteButton.setOnClickListener(v -> new AlertDialog.Builder(this.context)
+                .setMessage("Are you sure?")
+                .setPositiveButton("Yes", (dialog, which) -> recordsManager.deleteAtPosition(index))
+                .setNegativeButton("No", (dialog, which) -> Log.i("record-delete", "Record not deleted"))
+                .show());
+        recordDetailViewHolder.renameButton.setOnClickListener(v -> {
+            EditText editText = new EditText(this.context);
+            editText.setText(recordsManager.recordAtPosition(index).getName());
             new AlertDialog.Builder(this.context)
-                    .setMessage("Are you sure?")
-                    .setPositiveButton("Yes", (dialog, which) -> recordsManager.deleteAtPosition(index))
-                    .setNegativeButton("No", (dialog, which) -> Log.i("record-delete", "Record not deleted"))
+                    .setTitle("Rename record")
+                    .setView(editText)
+                    .setPositiveButton("Ok", (dialog, which) -> recordsManager.renameRecord(index, editText.getText().toString()))
+                    .setNegativeButton("Cancel", (dialog, which) -> Log.i("record-rename", "Record not renamed"))
                     .show();
         });
     }

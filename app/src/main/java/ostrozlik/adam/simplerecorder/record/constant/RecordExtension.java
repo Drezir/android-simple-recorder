@@ -38,6 +38,13 @@ public enum RecordExtension {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid extension " + mediaOutputFormat));
     }
 
+    public static RecordExtension resolveExtension(String filePathExtension) {
+        return Arrays.stream(CACHE)
+                .filter(recordExtension -> recordExtension.getExtension().equals(filePathExtension))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid extension " + filePathExtension));
+    }
+
     public int getMediaOutputFormat() {
         return mediaOutputFormat;
     }
