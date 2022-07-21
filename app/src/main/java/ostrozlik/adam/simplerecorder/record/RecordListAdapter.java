@@ -4,6 +4,8 @@ import static ostrozlik.adam.simplerecorder.SimpleRecorderUtils.formatDuration;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -146,10 +148,21 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
         playButton.setOnClickListener(v -> {
             try {
                 this.recordPlayerManager.playOrPause(recordManager.uriToPlay(record), record.getDuration(), seekBar);
+                setPlayButtonIcon(playButton);
             } catch (IOException e) {
                 Log.e("record-play", "Error playing record", e);
             }
         });
+    }
+
+    private void setPlayButtonIcon(ImageButton playButton) {
+        if (this.recordPlayerManager.isPlaying()) {
+            playButton.setImageIcon(Icon.createWithResource(this.context, R.drawable.ic_pause));
+        } else {
+            playButton.setImageIcon(Icon.createWithResource(this.context, R.drawable.ic_play));
+        }
+        this.recordPlayerManager.registerDonePlayingListener(() ->
+                playButton.setImageIcon(Icon.createWithResource(this.context, R.drawable.ic_play)));
     }
 
     private void prepareRenameButton(ImageButton renameButton, Record record) {

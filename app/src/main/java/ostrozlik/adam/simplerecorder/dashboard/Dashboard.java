@@ -59,7 +59,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.stopButton.setOnClickListener(new StopButtonStateListener());
         this.recorderState = new RecorderStopState(this, null);
 
-        this.recordListView.setOnGroupExpandListener(groupPosition -> new PreviousGroupCollapseListener(this.recordListView));
+        this.recordListView.setOnGroupExpandListener(new PreviousGroupCollapseListener(this.recordListView));
     }
 
     @Override

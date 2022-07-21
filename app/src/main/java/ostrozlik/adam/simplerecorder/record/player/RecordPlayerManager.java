@@ -1,60 +1,49 @@
 package ostrozlik.adam.simplerecorder.record.player;
 
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.widget.SeekBar;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import ostrozlik.adam.simplerecorder.record.Record;
-import ostrozlik.adam.simplerecorder.record.manager.RecordManager;
+import ostrozlik.adam.simplerecorder.record.player.state.PlayerPlayingState;
+import ostrozlik.adam.simplerecorder.record.player.state.PlayerState;
+import ostrozlik.adam.simplerecorder.record.player.state.PlayerStopState;
 
-public class RecordPlayerManager {
-    private MediaPlayer mediaPlayer;
+public class RecordPlayerManager implements PlayerMediator {
     private final Context context;
-    private Timer timer;
+    private SeekBar seekBar;
+    private PlayerState playerState;
     private Uri playingRecord;
+
+    private Runnable playingDoneListener;
 
     public RecordPlayerManager(Context context) {
         this.context = context;
+        this.playerState = new PlayerStopState(this);
     }
 
     public void playOrPause(Uri uri, Duration duration, SeekBar seekBar) throws IOException {
-        if (shouldRelease(uri)) {
-            release();
-        }
-        if (this.mediaPlayer == null) {
-            this.mediaPlayer = new MediaPlayer();
-            this.mediaPlayer.setDataSource(this.context, uri);
-            this.mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build());
-            this.mediaPlayer.prepareAsync();
-            seekBar.setMax((int) duration.toMillis());
-            seekBar.setOnSeekBarChangeListener(createSeekBarListener());
-            this.mediaPlayer.setOnPreparedListener(mp -> {
-                syncSeekBar(seekBar, mp);
-                mp.start();
-            });
-            this.mediaPlayer.setOnCompletionListener(mp -> release());
-        } else if (!this.mediaPlayer.isPlaying()) {
-            syncSeekBar(seekBar, this.mediaPlayer);
-            this.mediaPlayer.start();
-        } else {
-            pause();
-        }
+        releaseResources(uri);
+        this.seekBar = seekBar;
         this.playingRecord = uri;
+        this.playerState = this.playerState.play(this.context, uri, duration);
+        this.seekBar.setOnSeekBarChangeListener(createSeekBarListener());
     }
 
-    private boolean shouldRelease(Uri uri) {
-        return this.mediaPlayer != null && !uri.equals(playingRecord) && playingRecord != null;
+    private void releaseResources(Uri uri) {
+        if (isPlayingSomethingElse(uri)) {
+            this.playerState = this.playerState.stop();
+        }
+        if (this.seekBar != null) {
+            this.seekBar.setProgress(0);
+        }
+    }
+
+    private boolean isPlayingSomethingElse(Uri uri) {
+        return !uri.equals(playingRecord) && playingRecord != null;
     }
 
     private SeekBar.OnSeekBarChangeListener createSeekBarListener() {
@@ -63,8 +52,8 @@ public class RecordPlayerManager {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (RecordPlayerManager.this.mediaPlayer != null && seeking.get()) {
-                    RecordPlayerManager.this.mediaPlayer.seekTo(progress);
+                if (seeking.get()) {
+                    RecordPlayerManager.this.playerState.seekTo(progress);
                 }
             }
 
@@ -80,42 +69,36 @@ public class RecordPlayerManager {
         };
     }
 
-    private void syncSeekBar(SeekBar seekBar, MediaPlayer mp) {
-        cancelPreviousTimer();
-        this.timer = new Timer();
-        this.timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                seekBar.setProgress(mp.getCurrentPosition());
-            }
-        }, 0L, Duration.ofMillis(500L).toMillis());
-    }
-
-    private void cancelPreviousTimer() {
-        if (this.timer != null) {
-            this.timer.cancel();
-        }
-    }
-
-    public void pause() {
-        cancelPreviousTimer();
-        if (this.mediaPlayer != null) {
-            this.mediaPlayer.pause();
-        }
-    }
-
-    public void release() {
-        cancelPreviousTimer();
-        if (this.mediaPlayer != null) {
-            this.mediaPlayer.release();
-            this.mediaPlayer = null;
-        }
-        this.playingRecord = null;
-    }
-
     public void releaseIfPlaying(Uri record) {
         if (record.equals(this.playingRecord)) {
-            release();
+            playingDone();
+            this.playingRecord = null;
         }
+    }
+
+    public void registerDonePlayingListener(Runnable runnable) {
+        this.playingDoneListener = runnable;
+    }
+
+    @Override
+    public void seekTo(int progress) {
+        this.seekBar.setProgress(progress);
+    }
+
+    @Override
+    public void setMaxSeek(Duration duration) {
+        this.seekBar.setMax((int) duration.toMillis());
+    }
+
+    @Override
+    public void playingDone() {
+        this.playerState = this.playerState.stop();
+        if (this.playingDoneListener != null) {
+            this.playingDoneListener.run();
+        }
+    }
+
+    public boolean isPlaying() {
+        return this.playerState instanceof PlayerPlayingState;
     }
 }

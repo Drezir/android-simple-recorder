@@ -1,7 +1,5 @@
 package ostrozlik.adam.simplerecorder.recorder.state;
 
-import android.media.MediaRecorder;
-
 import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
 import ostrozlik.adam.simplerecorder.recorder.RecorderState;
 
