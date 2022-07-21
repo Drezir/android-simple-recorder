@@ -1,6 +1,9 @@
-package ostrozlik.adam.simplerecorder.record;
+package ostrozlik.adam.simplerecorder.record.manager;
 
 import java.util.List;
+
+import ostrozlik.adam.simplerecorder.record.FsRecord;
+import ostrozlik.adam.simplerecorder.record.Record;
 
 public interface RecordsManager {
     /**
@@ -23,5 +26,13 @@ public interface RecordsManager {
      *
      * @param newInstance new record
      */
-    void insertRecord(Record newInstance);
+    void newRecordedFile(FsRecord newInstance);
+
+    /**
+     * Delete record at index.
+     *
+     * @param index record index
+     * @return
+     */
+    boolean deleteAtPosition(int index);
 }

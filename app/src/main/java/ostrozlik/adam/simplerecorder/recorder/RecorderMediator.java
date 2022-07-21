@@ -39,4 +39,10 @@ public interface RecorderMediator {
      * @return true if authorized, false otherwise
      */
     boolean ensurePermissionToRecord();
+
+    /**
+     * Indicate that records have been changed
+     */
+    void recordsChanged();
+
 }

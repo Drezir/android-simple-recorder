@@ -2,8 +2,10 @@ package ostrozlik.adam.simplerecorder.record;
 
 import static ostrozlik.adam.simplerecorder.SimpleRecorderUtils.formatDuration;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,19 +18,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import ostrozlik.adam.simplerecorder.R;
-import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
+import ostrozlik.adam.simplerecorder.record.manager.RecordsManager;
 
 public class RecordListAdapter extends BaseExpandableListAdapter {
 
     private final RecordsManager recordsManager;
     private final Context context;
-    private final RecorderMediator recorderMediator;
-    private int lastGroupPosition = -1;
 
-    public RecordListAdapter(RecordsManager recordsManager, Context context, RecorderMediator recorderMediator) {
+    public RecordListAdapter(RecordsManager recordsManager, Context context) {
         this.recordsManager = recordsManager;
         this.context = context;
-        this.recorderMediator = recorderMediator;
     }
 
     private void pouplateFields(RecordViewHolder recordViewHolder, Record record) {
@@ -41,13 +40,6 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
     private View resolveRecordView(@Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             return createNewRecordView(parent);
-        }
-        return convertView;
-    }
-
-    private View resolveRecordDetailView(@Nullable View convertView, @NonNull ViewGroup parent) {
-        if (convertView == null) {
-            return createNewRecordDetailView(parent);
         }
         return convertView;
     }
@@ -122,7 +114,22 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        return resolveRecordDetailView(convertView, parent);
+        if (convertView == null) {
+            View newRecordDetailView = createNewRecordDetailView(parent);
+            createRecordDetailBehaviour((RecordDetailViewHolder) newRecordDetailView.getTag(), groupPosition);
+            return newRecordDetailView;
+        }
+        return convertView;
+    }
+
+    private void createRecordDetailBehaviour(RecordDetailViewHolder recordDetailViewHolder, int index) {
+        recordDetailViewHolder.deleteButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(this.context)
+                    .setMessage("Are you sure?")
+                    .setPositiveButton("Yes", (dialog, which) -> recordsManager.deleteAtPosition(index))
+                    .setNegativeButton("No", (dialog, which) -> Log.i("record-delete", "Record not deleted"))
+                    .show();
+        });
     }
 
     @Override

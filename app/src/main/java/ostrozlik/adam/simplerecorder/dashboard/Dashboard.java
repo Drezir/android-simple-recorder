@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ostrozlik.adam.simplerecorder.R;
-import ostrozlik.adam.simplerecorder.record.Record;
+import ostrozlik.adam.simplerecorder.record.FsRecord;
 import ostrozlik.adam.simplerecorder.record.RecordListAdapter;
-import ostrozlik.adam.simplerecorder.record.RecordsManager;
-import ostrozlik.adam.simplerecorder.record.RecordsManagerImpl;
+import ostrozlik.adam.simplerecorder.record.manager.RecordsManager;
+import ostrozlik.adam.simplerecorder.record.manager.RecordsManagerImpl;
 import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
 import ostrozlik.adam.simplerecorder.recorder.RecorderState;
 import ostrozlik.adam.simplerecorder.recorder.state.RecorderRecordingState;
@@ -51,8 +51,8 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.stopButton = findViewById(R.id.stopButton);
         this.recordListView = findViewById(R.id.recordsListView);
 
-        this.recordsManager = RecordsManagerImpl.newInstance(getSaveDirectory());
-        this.recordListAdapter = new RecordListAdapter(recordsManager, getApplicationContext(), this);
+        this.recordsManager = RecordsManagerImpl.newFsInstance(getSaveDirectory(), this);
+        this.recordListAdapter = new RecordListAdapter(recordsManager, this);
         this.recordListView.setAdapter(this.recordListAdapter);
 
         this.recordButton.setOnClickListener(new RecordButtonStateListener());
@@ -93,8 +93,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.stopButton.setVisibility(View.GONE);
         this.recordButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.mic_icon));
         try {
-            this.recordsManager.insertRecord(Record.newInstance(outputFile));
-            this.recordListAdapter.notifyDataSetChanged();
+            this.recordsManager.newRecordedFile(FsRecord.newFsInstance(outputFile));
         } catch (IOException e) {
             Log.e("record-read", "Error reading record", e);
         }
@@ -113,6 +112,11 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         }
         ActivityCompat.requestPermissions(this, new String[]{permissionToRecordAudio}, Dashboard.RECORD_AUDIO_REQUEST_CODE);
         return false;
+    }
+
+    @Override
+    public void recordsChanged() {
+        this.recordListAdapter.notifyDataSetChanged();
     }
 
     private class RecordButtonStateListener implements View.OnClickListener {
