@@ -56,19 +56,6 @@ public class RecordManagerImpl implements RecordManager {
     }
 
     @Override
-    public boolean deleteAtPosition(int index) {
-        if (0 <= index && index < this.records.size()) {
-            Record record = this.records.get(index);
-            if (this.recordStorage.removeRecord(record)) {
-                this.records.remove(index);
-                this.recorderMediator.recordsChanged();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public boolean renameRecord(Record record, String text) {
         if (!text.trim().isEmpty()) {
             if (this.recordStorage.renameRecord(record, text)) {

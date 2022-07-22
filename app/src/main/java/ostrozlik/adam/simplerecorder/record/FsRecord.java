@@ -1,5 +1,7 @@
 package ostrozlik.adam.simplerecorder.record;
 
+import static ostrozlik.adam.simplerecorder.SimpleRecorderUtils.resolveExtension;
+
 import android.media.MediaMetadataRetriever;
 
 import java.io.IOException;
@@ -11,21 +13,19 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
-import ostrozlik.adam.simplerecorder.record.constant.RecordExtension;
-
 public class FsRecord extends AbstractRecord {
 
-    private final Path filePath;
+    private Path filePath;
 
     public FsRecord(String name, Duration duration, Instant creationTime, long sizeInBytes, Path filePath) {
         super(name, duration, creationTime, sizeInBytes, resolveExtension(filePath));
         this.filePath = filePath;
     }
 
-    private static RecordExtension resolveExtension(Path filePath) {
-        String filePathStr = filePath.toString();
-        String filePathExtension = filePathStr.substring(filePathStr.lastIndexOf(".") + 1);
-        return RecordExtension.resolveExtension(filePathExtension);
+    @Override
+    public void rename(String newName) {
+        super.rename(newName);
+        this.filePath = filePath.resolveSibling(newName + "." + getRecordExtension().getExtension());
     }
 
     public Path getFilePath() {

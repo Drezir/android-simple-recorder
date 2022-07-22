@@ -31,14 +31,6 @@ public interface RecordManager {
     void newRecordedFile(FsRecord newInstance);
 
     /**
-     * Delete record at index.
-     *
-     * @param index record index
-     * @return
-     */
-    boolean deleteAtPosition(int index);
-
-    /**
      * Rename record at position to given text. Blank text is considered invalid and method returns false.
      *
      * @param index record index
