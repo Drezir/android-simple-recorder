@@ -23,7 +23,7 @@ public abstract class AbstractPlayerState implements PlayerState {
     }
 
     @Override
-    public PlayerState play(Context context, Uri uri, Duration duration) {
+    public PlayerState play(Context context, Uri uri, Duration duration, PlayerMediator playerMediator) {
         return this;
     }
 
@@ -43,10 +43,17 @@ public abstract class AbstractPlayerState implements PlayerState {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (mediaPlayer.isPlaying()) {
-                    playerMediator.seekTo(mediaPlayer.getCurrentPosition());
+                if (mediaPlayer != null) {
+                    AbstractPlayerState.this.playerMediator.seekTo(mediaPlayer.getCurrentPosition());
                 }
             }
         }, 0L, Duration.ofSeconds(1L).toMillis());
+    }
+
+    protected void stopCommon() {
+        this.mediaPlayer.release();
+        this.timer.cancel();
+        this.timer.purge();
+        this.playerMediator.release();
     }
 }

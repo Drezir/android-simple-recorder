@@ -1,7 +1,5 @@
 package ostrozlik.adam.simplerecorder;
 
-import android.text.format.Formatter;
-
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Locale;
@@ -13,7 +11,12 @@ public final class SimpleRecorderUtils {
 
     }
 
-    public static String formatDuration(Duration duration) {
+    public static String formatDurationWithoutHours(Duration duration) {
+        String withHours = formatDurationWithHours(duration);
+        return withHours.substring(withHours.indexOf(":") + 1);
+    }
+
+    public static String formatDurationWithHours(Duration duration) {
         long seconds = duration.getSeconds();
         return String.format(Locale.getDefault(),
                 "%d:%02d:%02d",

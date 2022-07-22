@@ -13,20 +13,20 @@ public class PlayerPlayingState extends AbstractPlayerState {
 
     protected PlayerPlayingState(MediaPlayer mediaPlayer, Timer timer, PlayerMediator playerMediator) {
         super(mediaPlayer, timer, playerMediator);
+        scheduleTimeTask(timer, mediaPlayer);
     }
 
     @Override
-    public PlayerState play(Context context, Uri uri, Duration duration) {
+    public PlayerState play(Context context, Uri uri, Duration duration, PlayerMediator playerMediator) {
         this.mediaPlayer.pause();
         this.timer.cancel();
-        return new PlayerPauseState(this.mediaPlayer, this.timer, this.playerMediator);
+        playerMediator.pause();
+        return new PlayerPauseState(this.mediaPlayer, new Timer(), playerMediator);
     }
 
     @Override
     public PlayerState stop() {
-        this.mediaPlayer.release();
-        this.timer.cancel();
-        this.playerMediator.seekTo(0);
-        return new PlayerStopState(this.playerMediator);
+        stopCommon();
+        return new PlayerStopState();
     }
 }

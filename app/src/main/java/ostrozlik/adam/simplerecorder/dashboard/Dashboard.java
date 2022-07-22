@@ -52,7 +52,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
         this.recordListView = findViewById(R.id.recordsListView);
 
         this.recordManager = RecordManagerImpl.newFsInstance(getSaveDirectory(), this);
-        this.recordListAdapter = new RecordListAdapter(recordManager, this);
+        this.recordListAdapter = new RecordListAdapter(recordManager, this, runnable -> runOnUiThread(runnable));
         this.recordListView.setAdapter(this.recordListAdapter);
 
         this.recordButton.setOnClickListener(new RecordButtonStateListener());

@@ -44,7 +44,7 @@ public class RecordManagerImpl implements RecordManager {
     }
 
     @Override
-    public Record recordAtPosition(int position) {
+    public Record findByIndex(int position) {
         return this.records.get(position);
     }
 

@@ -13,12 +13,12 @@ import java.util.Timer;
 import ostrozlik.adam.simplerecorder.record.player.PlayerMediator;
 
 public class PlayerStopState extends AbstractPlayerState {
-    public PlayerStopState(PlayerMediator playerMediator) {
-        super(null, null, playerMediator);
+    public PlayerStopState() {
+        super(null, null, null);
     }
 
     @Override
-    public PlayerState play(Context context, Uri uri, Duration duration) {
+    public PlayerState play(Context context, Uri uri, Duration duration, PlayerMediator playerMediator) {
         MediaPlayer mediaPlayer = new MediaPlayer();
         try {
             mediaPlayer.setDataSource(context, uri);
@@ -26,25 +26,24 @@ public class PlayerStopState extends AbstractPlayerState {
             Log.e("record-play", "Error playing record " + uri, e);
             return this;
         }
-        initMediaPlayer(duration, mediaPlayer);
-        Timer timer = createTimer(mediaPlayer);
-        return new PlayerPlayingState(mediaPlayer, timer, this.playerMediator);
-    }
-
-    private Timer createTimer(MediaPlayer mediaPlayer) {
         Timer timer = new Timer();
-        scheduleTimeTask(timer, mediaPlayer);
-        return timer;
+        initMediaPlayer(mediaPlayer, playerMediator, timer);
+        playerMediator.setMaxSeek(duration);
+        playerMediator.startPlaying();
+        return new PlayerPlayingState(mediaPlayer, timer, playerMediator);
     }
 
-    private void initMediaPlayer(Duration duration, MediaPlayer mediaPlayer) {
+    private void initMediaPlayer(MediaPlayer mediaPlayer, PlayerMediator playerMediator, Timer timer) {
         mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .build());
         mediaPlayer.prepareAsync();
-        this.playerMediator.setMaxSeek(duration);
         mediaPlayer.setOnPreparedListener(MediaPlayer::start);
-        mediaPlayer.setOnCompletionListener(mp -> this.playerMediator.playingDone());
+        mediaPlayer.setOnCompletionListener(mp -> {
+            timer.cancel();
+            mp.release();
+            playerMediator.release();
+        });
     }
 }

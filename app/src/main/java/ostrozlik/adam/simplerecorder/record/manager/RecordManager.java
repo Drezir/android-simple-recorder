@@ -21,7 +21,7 @@ public interface RecordManager {
      * @param position position
      * @return record on position
      */
-    Record recordAtPosition(int position);
+    Record findByIndex(int position);
 
     /**
      * Insert new record.

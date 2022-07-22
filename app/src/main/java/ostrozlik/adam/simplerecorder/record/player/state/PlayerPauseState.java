@@ -6,7 +6,6 @@ import android.net.Uri;
 
 import java.time.Duration;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import ostrozlik.adam.simplerecorder.record.player.PlayerMediator;
 
@@ -16,17 +15,15 @@ public class PlayerPauseState extends AbstractPlayerState {
     }
 
     @Override
-    public PlayerState play(Context context, Uri uri, Duration duration) {
+    public PlayerState play(Context context, Uri uri, Duration duration, PlayerMediator playerMediator) {
         this.mediaPlayer.start();
-        Timer timer = new Timer();
-        scheduleTimeTask(timer, this.mediaPlayer);
-        return new PlayerPlayingState(this.mediaPlayer, timer, this.playerMediator);
+        playerMediator.startPlaying();
+        return new PlayerPlayingState(this.mediaPlayer, this.timer, playerMediator);
     }
 
     @Override
     public PlayerState stop() {
-        this.mediaPlayer.release();
-        this.timer.cancel();
-        return new PlayerStopState(this.playerMediator);
+        stopCommon();
+        return new PlayerStopState();
     }
 }

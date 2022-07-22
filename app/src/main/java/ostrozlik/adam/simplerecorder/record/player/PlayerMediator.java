@@ -7,5 +7,9 @@ public interface PlayerMediator {
 
     void setMaxSeek(Duration duration);
 
-    void playingDone();
+    void release();
+
+    void startPlaying();
+
+    void pause();
 }
