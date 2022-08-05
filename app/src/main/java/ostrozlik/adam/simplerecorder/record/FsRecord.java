@@ -3,6 +3,7 @@ package ostrozlik.adam.simplerecorder.record;
 import static ostrozlik.adam.simplerecorder.SimpleRecorderUtils.resolveExtension;
 
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -52,6 +53,9 @@ public class FsRecord extends AbstractRecord {
             String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             long millis = Long.parseLong(duration);
             return Duration.ofMillis(millis);
+        } catch (Exception ex) {
+            Log.e("duration", "Could not resolve duration", ex);
+            return Duration.ZERO;
         }
     }
 

@@ -1,4 +1,4 @@
-package ostrozlik.adam.simplerecorder.record.player;
+package ostrozlik.adam.simplerecorder.player;
 
 import android.content.Context;
 import android.net.Uri;
@@ -6,8 +6,8 @@ import android.net.Uri;
 import java.io.IOException;
 import java.time.Duration;
 
-import ostrozlik.adam.simplerecorder.record.player.state.PlayerState;
-import ostrozlik.adam.simplerecorder.record.player.state.PlayerStopState;
+import ostrozlik.adam.simplerecorder.player.state.PlayerState;
+import ostrozlik.adam.simplerecorder.player.state.PlayerStopState;
 
 public class RecordPlayerManager {
     private final Context context;

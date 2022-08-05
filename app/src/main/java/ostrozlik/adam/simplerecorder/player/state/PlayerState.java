@@ -1,11 +1,11 @@
-package ostrozlik.adam.simplerecorder.record.player.state;
+package ostrozlik.adam.simplerecorder.player.state;
 
 import android.content.Context;
 import android.net.Uri;
 
 import java.time.Duration;
 
-import ostrozlik.adam.simplerecorder.record.player.PlayerMediator;
+import ostrozlik.adam.simplerecorder.player.PlayerMediator;
 
 public interface PlayerState {
     PlayerState play(Context context, Uri uri, Duration duration, PlayerMediator playerMediator);

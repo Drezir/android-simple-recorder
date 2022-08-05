@@ -1,4 +1,4 @@
-package ostrozlik.adam.simplerecorder.record.player.state;
+package ostrozlik.adam.simplerecorder.player.state;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ostrozlik.adam.simplerecorder.record.player.PlayerMediator;
+import ostrozlik.adam.simplerecorder.player.PlayerMediator;
 
 public abstract class AbstractPlayerState implements PlayerState {
 
@@ -39,21 +39,26 @@ public abstract class AbstractPlayerState implements PlayerState {
         }
     }
 
-    protected void scheduleTimeTask(Timer timer, MediaPlayer mediaPlayer) {
+    protected void scheduleTimeTask(Timer timer, MediaPlayer mediaPlayer, PlayerMediator playerMediator) {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (mediaPlayer != null) {
-                    AbstractPlayerState.this.playerMediator.seekTo(mediaPlayer.getCurrentPosition());
+                try {
+                    playerMediator.seekTo(mediaPlayer.getCurrentPosition());
+                } catch (IllegalStateException ignored) {
                 }
             }
-        }, 0L, Duration.ofSeconds(1L).toMillis());
+        }, 0L, Duration.ofMillis(500L).toMillis());
+    }
+
+    protected void purgeTimer(Timer timer) {
+        timer.cancel();
+        timer.purge();
     }
 
     protected void stopCommon() {
+        purgeTimer(this.timer);
         this.mediaPlayer.release();
-        this.timer.cancel();
-        this.timer.purge();
         this.playerMediator.release();
     }
 }

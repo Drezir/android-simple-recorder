@@ -1,5 +1,7 @@
 package ostrozlik.adam.simplerecorder.recorder.state;
 
+import android.content.Context;
+
 import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
 import ostrozlik.adam.simplerecorder.recorder.RecorderState;
 
@@ -20,12 +22,7 @@ public abstract class AbstractRecorderState implements RecorderState {
     }
 
     @Override
-    public RecorderState handleRecord() {
-        return this;
-    }
-
-    @Override
-    public RecorderState handlePause() {
+    public RecorderState handleRecord(Context context) {
         return this;
     }
 }

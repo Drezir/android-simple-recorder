@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="ostrozlik.adam.simplerecorder">
 
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -16,15 +16,19 @@
         android:theme="@style/Theme.SimpleRecorder"
         tools:targetApi="31">
         <activity
-            android:label="Simple recorder"
+            android:name=".settings.SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_settings" />
+        <activity
             android:name=".dashboard.Dashboard"
-            android:exported="true">
-            <intent-filter >
+            android:exported="true"
+            android:label="Simple recorder">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

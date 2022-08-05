@@ -1,4 +1,4 @@
-package ostrozlik.adam.simplerecorder.record.player;
+package ostrozlik.adam.simplerecorder.player;
 
 import java.time.Duration;
 

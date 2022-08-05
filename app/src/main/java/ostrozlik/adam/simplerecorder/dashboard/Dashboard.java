@@ -1,9 +1,12 @@
 package ostrozlik.adam.simplerecorder.dashboard;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 
@@ -21,13 +24,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ostrozlik.adam.simplerecorder.R;
+import ostrozlik.adam.simplerecorder.settings.SettingsActivity;
+import ostrozlik.adam.simplerecorder.settings.SettingsFragment;
 import ostrozlik.adam.simplerecorder.record.FsRecord;
 import ostrozlik.adam.simplerecorder.record.RecordListAdapter;
 import ostrozlik.adam.simplerecorder.record.manager.RecordManager;
 import ostrozlik.adam.simplerecorder.record.manager.RecordManagerImpl;
 import ostrozlik.adam.simplerecorder.recorder.RecorderMediator;
 import ostrozlik.adam.simplerecorder.recorder.RecorderState;
-import ostrozlik.adam.simplerecorder.recorder.state.RecorderRecordingState;
 import ostrozlik.adam.simplerecorder.recorder.state.RecorderStopState;
 
 public class Dashboard extends AppCompatActivity implements RecorderMediator {
@@ -39,7 +43,6 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
     private RecorderState recorderState;
     private RecordManager recordManager;
 
-    private ExpandableListView recordListView;
     private RecordListAdapter recordListAdapter;
 
     @Override
@@ -49,24 +52,43 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
 
         this.recordButton = findViewById(R.id.recordButton);
         this.stopButton = findViewById(R.id.stopButton);
-        this.recordListView = findViewById(R.id.recordsListView);
 
         this.recordManager = RecordManagerImpl.newFsInstance(getSaveDirectory(), this);
-        this.recordListAdapter = new RecordListAdapter(recordManager, this, runnable -> runOnUiThread(runnable));
-        this.recordListView.setAdapter(this.recordListAdapter);
+        this.recordListAdapter = new RecordListAdapter(recordManager, this, this::runOnUiThread);
+
+        ExpandableListView recordListView = findViewById(R.id.recordsListView);
+        recordListView.setAdapter(this.recordListAdapter);
+        recordListView.setOnGroupExpandListener(new PreviousGroupCollapseListener(recordListView));
 
         this.recordButton.setOnClickListener(new RecordButtonStateListener());
         this.stopButton.setOnClickListener(new StopButtonStateListener());
         this.recorderState = new RecorderStopState(this, null);
+    }
 
-        this.recordListView.setOnGroupExpandListener(new PreviousGroupCollapseListener(this.recordListView));
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.settings) {
+            showSettings();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showSettings() {
+        startActivity(new Intent(this, SettingsActivity.class));
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == RECORD_AUDIO_REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            this.recorderState = this.recorderState.handleRecord();
+            this.recorderState = this.recorderState.handleRecord(this);
         } else {
             Snackbar.make(findViewById(R.id.recordButton), "Permission to record audio is mandatory for this app", Snackbar.LENGTH_SHORT).show();
         }
@@ -122,11 +144,7 @@ public class Dashboard extends AppCompatActivity implements RecorderMediator {
     private class RecordButtonStateListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            if (Dashboard.this.recorderState instanceof RecorderRecordingState) {
-                Dashboard.this.recorderState = Dashboard.this.recorderState.handlePause();
-            } else {
-                Dashboard.this.recorderState = Dashboard.this.recorderState.handleRecord();
-            }
+            Dashboard.this.recorderState = Dashboard.this.recorderState.handleRecord(Dashboard.this);
         }
     }
 

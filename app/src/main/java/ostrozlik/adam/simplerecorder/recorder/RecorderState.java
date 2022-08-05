@@ -1,7 +1,8 @@
 package ostrozlik.adam.simplerecorder.recorder;
 
+import android.content.Context;
+
 public interface RecorderState {
     RecorderState handleStop();
-    RecorderState handleRecord();
-    RecorderState handlePause();
+    RecorderState handleRecord(Context context);
 }

@@ -1,4 +1,4 @@
-package ostrozlik.adam.simplerecorder.record.player.state;
+package ostrozlik.adam.simplerecorder.player.state;
 
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Timer;
 
-import ostrozlik.adam.simplerecorder.record.player.PlayerMediator;
+import ostrozlik.adam.simplerecorder.player.PlayerMediator;
 
 public class PlayerStopState extends AbstractPlayerState {
     public PlayerStopState() {
@@ -29,7 +29,6 @@ public class PlayerStopState extends AbstractPlayerState {
         Timer timer = new Timer();
         initMediaPlayer(mediaPlayer, playerMediator, timer);
         playerMediator.setMaxSeek(duration);
-        playerMediator.startPlaying();
         return new PlayerPlayingState(mediaPlayer, timer, playerMediator);
     }
 
@@ -39,9 +38,13 @@ public class PlayerStopState extends AbstractPlayerState {
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .build());
         mediaPlayer.prepareAsync();
-        mediaPlayer.setOnPreparedListener(MediaPlayer::start);
+        mediaPlayer.setOnPreparedListener(mp -> {
+            playerMediator.startPlaying();
+            mp.start();
+            scheduleTimeTask(timer, mp, playerMediator);
+        });
         mediaPlayer.setOnCompletionListener(mp -> {
-            timer.cancel();
+            purgeTimer(timer);
             mp.release();
             playerMediator.release();
         });

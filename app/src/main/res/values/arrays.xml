@@ -1,0 +1,50 @@
+<resources>
+    <string-array name="audio_formats">
+        <item>default</item>
+        <item>THREE_GPP</item>
+        <item>MPEG_4</item>
+        <item>AMR_NB</item>
+        <item>AMR_WB</item>
+        <item>AAC_ADIF</item>
+        <item>AAC_ADTS</item>
+        <item>OUTPUT_FORMAT_RTP_AVP</item>
+        <item>MPEG_2_TS</item>
+        <item>WEBM</item>
+        <item>HEIF</item>
+        <item>OGG</item>
+    </string-array>
+    <string-array name="audio_format_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+    </string-array>
+    <string-array name="audio_encoders">
+        <item>default</item>
+        <item>AMR_NB</item>
+        <item>AMR_WB</item>
+        <item>AAC</item>
+        <item>HE_AAC</item>
+        <item>AAC_ELD</item>
+        <item>VORBIS</item>
+        <item>OPUS</item>
+    </string-array>
+    <string-array name="audio_encoders_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+</resources>

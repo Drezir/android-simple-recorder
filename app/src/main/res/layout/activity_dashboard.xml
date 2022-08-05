@@ -38,6 +38,7 @@
         android:animateLayoutChanges="true"
         android:dividerHeight="1dp"
         android:groupIndicator="@null"
+        android:paddingBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/recordButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

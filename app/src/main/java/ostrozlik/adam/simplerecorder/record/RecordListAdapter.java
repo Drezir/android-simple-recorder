@@ -19,15 +19,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import ostrozlik.adam.simplerecorder.R;
 import ostrozlik.adam.simplerecorder.record.manager.RecordManager;
-import ostrozlik.adam.simplerecorder.record.player.PlayerMediator;
-import ostrozlik.adam.simplerecorder.record.player.PlayerMediatorImpl;
-import ostrozlik.adam.simplerecorder.record.player.RecordPlayerManager;
+import ostrozlik.adam.simplerecorder.player.PlayerMediator;
+import ostrozlik.adam.simplerecorder.player.PlayerMediatorImpl;
+import ostrozlik.adam.simplerecorder.player.RecordPlayerManager;
 
 public class RecordListAdapter extends BaseExpandableListAdapter {
 
@@ -180,13 +179,9 @@ public class RecordListAdapter extends BaseExpandableListAdapter {
             }
 
             @Override
-            public void setMaxSeek(Duration duration) {
-                RecordListAdapter.this.runOnUiThread.accept(() -> super.setMaxSeek(duration));
-            }
-
-            @Override
             public void release() {
-                RecordListAdapter.this.runOnUiThread.accept(super::release);
+                //RecordListAdapter.this.runOnUiThread.accept(super::release);
+                super.release();
                 RecordListAdapter.this.recordPlayerManager.reset();
             }
         };
